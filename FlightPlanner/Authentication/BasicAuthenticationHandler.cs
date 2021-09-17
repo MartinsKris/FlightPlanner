@@ -60,11 +60,11 @@ namespace FlightPlanner.Authentication
             return AuthenticateResult.Success(ticket);
         }
 
-        //protected override Task HandleChallengeAsync(AuthenticationProperties properties)
-        //{
-        //    Response.Headers["WWW-Authenticate"] = "Basic realm=\"\", charset=\"UTF-8\"";
-        //    return base.HandleChallengeAsync(properties);
-        //}
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            Response.Headers["WWW-Authenticate"] = "Basic realm=\"\", charset=\"UTF-8\"";
+            return base.HandleChallengeAsync(properties);
+        }
 
         public async Task<bool> Authenticate(string username, string password)
         {

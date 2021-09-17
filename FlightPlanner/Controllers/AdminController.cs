@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FlightPlanner.Models;
 using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Authorization;
 
@@ -24,5 +25,29 @@ namespace FlightPlanner.Controllers
 
             return Ok(flight);
         }
+
+        [HttpPut]
+        [Route("flights")]
+        public IActionResult PutFlight(Flight flight)
+        {
+            if (FlightStorage.NullValidation(flight) == false)
+                return BadRequest();
+
+            if (FlightStorage.IsUniqueFlight(flight) == false)
+                return Conflict();
+
+            FlightStorage.AddFlight(flight);
+                return Created("", flight);
+        }
+
+        [HttpDelete]
+        [Route("flights/{id}")]
+        public IActionResult DeleteFlight(int id)
+        {
+            FlightStorage.DeleteFlight(id);
+            return Ok();
+        }
+
+
     }
 }
