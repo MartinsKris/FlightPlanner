@@ -45,10 +45,10 @@ namespace FlightPlanner.Storage
 
         }
 
-        public static Flight GetByDepartureTime(string time)
-        {
-            return _flights.SingleOrDefault(flight => flight.DepartureTime == time);
-        }
+        //public static Flight GetByDepartureTime(string time)
+        //{
+        //    return _flights.SingleOrDefault(flight => flight.DepartureTime == time);
+        //}
 
         public static bool IsUniqueFlight(Flight flight)
         {
@@ -66,9 +66,9 @@ namespace FlightPlanner.Storage
 
         public static bool NullValidation(Flight flight)
         {
-            if (flight.DepartureTime == null
+            if (flight?.DepartureTime == null
                 || flight.From == null
-                || flight.ArrivalTime == null
+                || flight?.ArrivalTime == null
                 || flight.To == null)
                 return false;
 
@@ -94,6 +94,26 @@ namespace FlightPlanner.Storage
         {
             var flightToRemove = _flights.Find(f => f.Id == id);
             _flights.Remove(flightToRemove);
+        }
+
+        public static PageResults FindFlight(SearchFlights flight)
+        {
+            var flights = _flights.Find(f =>
+                f.From.AirportCode == flight.from && f.To.AirportCode == flight.to && f.DepartureTime == flight.departureDate);
+
+            PageResults value = new PageResults();
+            value.page = 0;
+            value.totalItems = 0;
+            value.items = new List<Flight>();
+            if (flights == null)
+            {
+                var targetType = value.items.Select(fx => new int()).ToList();
+                targetType.Add(0);
+            }
+            else
+                value.items.Add(flights);
+
+            return value;
         }
     }
 }
