@@ -15,6 +15,8 @@ namespace FlightPlanner.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
+        private static readonly object obj_lock = new object();
+
         [HttpGet]
         [Route("flights/{id}")]
         public IActionResult GetFlight(int id)
@@ -30,14 +32,17 @@ namespace FlightPlanner.Controllers
         [Route("flights")]
         public IActionResult PutFlight(Flight flight)
         {
-            if (FlightStorage.NullValidation(flight) == false)
-                return BadRequest();
+            lock (obj_lock)
+            {
+                if (FlightStorage.NullValidation(flight) == false)
+                    return BadRequest();
 
-            if (FlightStorage.IsUniqueFlight(flight) == false)
-                return Conflict();
+                if (FlightStorage.IsUniqueFlight(flight) == false)
+                    return Conflict();
 
-            FlightStorage.AddFlight(flight);
+                FlightStorage.AddFlight(flight);
                 return Created("", flight);
+            }
         }
 
         [HttpDelete]
