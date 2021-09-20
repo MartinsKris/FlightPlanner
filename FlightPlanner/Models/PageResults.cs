@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace FlightPlanner.Models
 {
     public class PageResults
     {
-        public int page { get; set; }
-        public int totalItems { get; set; }
-        public virtual List<Flight> items { get; set; }
+        public int Page { get; set; }
+        public int TotalItems { get; set; }
+        public virtual List<Flight> Items { get; set; }
     }
 }

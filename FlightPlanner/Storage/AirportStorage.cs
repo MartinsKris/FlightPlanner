@@ -1,8 +1,7 @@
-﻿using System;
+﻿using FlightPlanner.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using FlightPlanner.Models;
 
 namespace FlightPlanner.Storage
 {
@@ -33,7 +32,6 @@ namespace FlightPlanner.Storage
                 _airports.Add(flight.From);
                 _airports.Add(flight.To);
             }
-
         }
 
         public static void ClearAirports()
@@ -51,6 +49,7 @@ namespace FlightPlanner.Storage
                         || f.Country.ToString().ToLower().Contains(searchValue.ToLower())
                         || f.City.ToString().ToLower().Contains(searchValue.ToLower()));
                     List<Airport> listWithAirports = new List<Airport>();
+
                     listWithAirports.Add(airportX);
 
                     return listWithAirports;
@@ -60,7 +59,6 @@ namespace FlightPlanner.Storage
 
             else
                 return null;
-            
         }
     }
 }

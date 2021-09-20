@@ -1,11 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FlightPlanner.Models;
+﻿using FlightPlanner.Models;
 using FlightPlanner.Storage;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FlightPlanner.Controllers
 {
@@ -40,17 +35,12 @@ namespace FlightPlanner.Controllers
         [Route("flights/search")]
         public IActionResult SearchFlight(SearchFlights flight)
         {
-            if (flight.from == flight.to)
+            if (flight.From == flight.To)
             {
                 return BadRequest();
             }
 
-            var x = FlightStorage.FindFlight(flight);
-
-
-            //if (FlightStorage.FindFlight(flight) == 0)
-            //    return Ok(0);
-            return Ok(x);
+            return Ok(FlightStorage.FindFlight(flight));
         }
     }
 }

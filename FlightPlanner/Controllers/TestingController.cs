@@ -1,10 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FlightPlanner.Storage;
 
 namespace FlightPlanner.Controllers
 {
@@ -18,6 +13,7 @@ namespace FlightPlanner.Controllers
         {
             FlightStorage.ClearFlights();
             AirportStorage.ClearAirports();
+
             return Ok();
         }
     }

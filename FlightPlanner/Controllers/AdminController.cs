@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FlightPlanner.Models;
+﻿using FlightPlanner.Models;
 using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FlightPlanner.Controllers
 {
@@ -15,7 +10,7 @@ namespace FlightPlanner.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
-        private static readonly object obj_lock = new object();
+        private static readonly object _objLock = new object();
 
         [HttpGet]
         [Route("flights/{id}")]
@@ -32,7 +27,7 @@ namespace FlightPlanner.Controllers
         [Route("flights")]
         public IActionResult PutFlight(Flight flight)
         {
-            lock (obj_lock)
+            lock (_objLock)
             {
                 if (FlightStorage.NullValidation(flight) == false)
                     return BadRequest();
@@ -52,7 +47,5 @@ namespace FlightPlanner.Controllers
             FlightStorage.DeleteFlight(id);
             return Ok();
         }
-
-
     }
 }

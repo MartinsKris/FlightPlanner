@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace FlightPlanner.Authentication
 {
@@ -18,9 +16,7 @@ namespace FlightPlanner.Authentication
     {
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, 
-            UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
-        {
-        }
+            UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock) { }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -51,8 +47,8 @@ namespace FlightPlanner.Authentication
 
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, "codelex-admin"),
-                new Claim(ClaimTypes.Name, "codelex-admin"),
-            };
+                new Claim(ClaimTypes.Name, "codelex-admin")};
+
             var identity = new ClaimsIdentity(claims, Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, Scheme.Name);

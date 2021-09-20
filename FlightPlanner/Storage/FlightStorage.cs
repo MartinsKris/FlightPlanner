@@ -1,17 +1,14 @@
-﻿using System;
+﻿using FlightPlanner.Models;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Threading.Tasks;
-using FlightPlanner.Models;
 
 namespace FlightPlanner.Storage
 {
     public static class FlightStorage
     {
-        private static readonly object obj_lock = new object();
-        private static List<Flight> _flights = new List<Flight>();
+        private static readonly object _objLock = new object();
+        private static readonly List<Flight> _flights = new List<Flight>();
 
         public static Flight GetById(int id)
         {
@@ -33,23 +30,25 @@ namespace FlightPlanner.Storage
 
         public static Flight AddFlight(Flight flights)
         {
-            lock (obj_lock)
+            lock (_objLock)
             {
                 Random rand = new Random();
 
                 flights.Id = Convert.ToInt32((DateTime.Now - DateTime.Parse("01/01/2002")).TotalSeconds) + rand.Next(1000000);
+
                 if (CheckForId(flights.Id) == flights.Id)
                     flights.Id++;
 
                 _flights.Add(flights);
                 AirportStorage.AddAirport(flights);
+
                 return flights;
             }
         }
 
         public static bool IsUniqueFlight(Flight flight)
         {
-            lock (obj_lock)
+            lock (_objLock)
             {
                 if (_flights.Count == 0)
                     return true;
@@ -61,7 +60,7 @@ namespace FlightPlanner.Storage
         
         public static bool NullValidation(Flight flight)
         {
-            lock (obj_lock)
+            lock (_objLock)
             {
                 if (flight?.DepartureTime == null
                     || flight.From == null
@@ -90,7 +89,7 @@ namespace FlightPlanner.Storage
 
         public static void DeleteFlight(int id)
         {
-            lock (obj_lock)
+            lock (_objLock)
             {
                 var flightToRemove = _flights.Find(f => f.Id == id);
                 _flights.Remove(flightToRemove);
@@ -100,23 +99,27 @@ namespace FlightPlanner.Storage
         public static PageResults FindFlight(SearchFlights flight)
         {
             var flights = _flights.Find(f =>
-                f.From.AirportCode == flight.from && f.To.AirportCode == flight.to && f.DepartureTime.Substring(0, 10) == flight.departureDate);
+                f.From.AirportCode == flight.From && f.To.AirportCode == flight.To 
+                                                  && f.DepartureTime.Substring(0, 10) == flight.DepartureDate);
+
             List<int?> actingList = new List<int?>();
             actingList.Add(flights?.Id);
+
             PageResults value = new PageResults();
-            value.items = new List<Flight>();
+            value.Items = new List<Flight>();
+
             if (flights == null)
             {
-                value.page = 0;
-                value.totalItems = 0;
-                var targetType = value.items.Select(fx => new int()).ToList();
+                value.Page = 0;
+                value.TotalItems = 0;
+                var targetType = value.Items.Select(fx => new int()).ToList();
                 targetType.Add(0);
             }
             else
             {
-                value.page = 0;
-                value.totalItems = actingList.Count;
-                value.items.Add(flights);
+                value.Page = 0;
+                value.TotalItems = actingList.Count;
+                value.Items.Add(flights);
             }
 
             return value;
