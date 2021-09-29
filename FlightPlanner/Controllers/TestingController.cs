@@ -1,4 +1,5 @@
-﻿using FlightPlanner.Storage;
+﻿using FlightPlanner.CbContext;
+using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightPlanner.Controllers
@@ -7,12 +8,22 @@ namespace FlightPlanner.Controllers
     [ApiController]
     public class TestingController : ControllerBase
     {
+        private readonly FlightPlannerDbContext _context;
+
+        public TestingController(FlightPlannerDbContext context)
+        {
+            _context = context;
+        }
+
         [Route("clear")]
         [HttpPost]
         public IActionResult Clear()
         {
-            FlightStorage.ClearFlights();
-            AirportStorage.ClearAirports();
+            var flightStorage = new FlightStorage(_context);
+            flightStorage.ClearFlights();
+
+            var airportStorage = new AirportStorage(_context);
+            airportStorage.ClearAirports();
 
             return Ok();
         }

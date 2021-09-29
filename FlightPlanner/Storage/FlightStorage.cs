@@ -1,63 +1,59 @@
-﻿using FlightPlanner.Models;
+﻿using FlightPlanner.CbContext;
+using FlightPlanner.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace FlightPlanner.Storage
 {
-    public static class FlightStorage
+    public class FlightStorage
     {
         private static readonly object _objLock = new object();
-        private static readonly List<Flight> _flights = new List<Flight>();
+        private readonly FlightPlannerDbContext _context;
 
-        public static Flight GetById(int id)
+        public FlightStorage(FlightPlannerDbContext context)
         {
-            return _flights.SingleOrDefault(f => f.Id == id);
+            _context = context;
         }
 
-        public static void ClearFlights()
+        public Flight GetById(int id)
         {
-            _flights.Clear();
+            return _context.Flights.Include(a => a.To)
+                .Include(a => a.From).SingleOrDefault(f => f.Id == id);
         }
 
-        public static int? CheckForId(int id)
+        public void ClearFlights()
         {
-            if (_flights.Count == 0)
-                return 0;
+            foreach (var value in _context.Flights)
+                _context.Flights.Remove(value);
 
-            return _flights?.Find(v => v.Id == id)!?.Id;
+            _context.SaveChanges();
         }
 
-        public static Flight AddFlight(Flight flights)
+        public Flight AddFlight(Flight flights)
         {
             lock (_objLock)
             {
-                Random rand = new Random();
-
-                flights.Id = Convert.ToInt32((DateTime.Now - DateTime.Parse("01/01/2002")).TotalSeconds) + rand.Next(1000000);
-
-                if (CheckForId(flights.Id) == flights.Id)
-                    flights.Id++;
-
-                _flights.Add(flights);
-                AirportStorage.AddAirport(flights);
+                _context.Flights.Add(flights);
+                _context.SaveChanges();
 
                 return flights;
             }
         }
 
-        public static bool IsUniqueFlight(Flight flight)
+        public bool IsUniqueFlight(Flight flight)
         {
             lock (_objLock)
             {
-                if (_flights.Count == 0)
+                if (_context.Flights.Count() == 0)
                     return true;
 
-                return (_flights.Find(f =>
+                return (_context.Flights.FirstOrDefault(f =>
                     f.DepartureTime == flight.DepartureTime && f.From.AirportCode == flight.From.AirportCode) == null);
             }
         }
-        
+
         public static bool NullValidation(Flight flight)
         {
             lock (_objLock)
@@ -87,19 +83,27 @@ namespace FlightPlanner.Storage
             }
         }
 
-        public static void DeleteFlight(int id)
+        public void DeleteFlight(int id)
         {
             lock (_objLock)
             {
-                var flightToRemove = _flights.Find(f => f.Id == id);
-                _flights.Remove(flightToRemove);
+                var flight = _context.Flights.Include(a => a.To)
+                    .Include(a => a.From)
+                    .FirstOrDefault(f => f.Id == id);
+
+                if (flight != null)
+                {
+                    _context.Flights.Remove(_context.Flights.Include(a => a.From)
+                        .Include(a => a.To).First(s => s.Id == id));
+                    _context.SaveChanges();
+                }
             }
         }
 
-        public static PageResults FindFlight(SearchFlights flight)
+        public PageResults FindFlight(SearchFlights flight)
         {
-            var flights = _flights.Find(f =>
-                f.From.AirportCode == flight.From && f.To.AirportCode == flight.To 
+            var flights = _context.Flights.SingleOrDefault(f =>
+                f.From.AirportCode == flight.From && f.To.AirportCode == flight.To
                                                   && f.DepartureTime.Substring(0, 10) == flight.DepartureDate);
 
             List<int?> actingList = new List<int?>();
